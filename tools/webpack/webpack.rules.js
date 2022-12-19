@@ -42,7 +42,7 @@ module.exports = [
   {
     // Assets loader
     // More information here https://webpack.js.org/guides/asset-modules/
-    test: /\.(gif|jpe?g|tiff|png|webp|bmp|svg|eot|ttf|woff|woff2)$/i,
+    test: /\.(gif|jpe?g|tiff|png|webp|bmp|svg|eot|ttf|woff|woff2|riv|mp3)$/i,
     type: 'asset',
     generator: {
       filename: 'assets/[hash][ext][query]',

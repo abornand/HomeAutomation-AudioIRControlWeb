@@ -42,7 +42,11 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
+    "@rive-app/react-canvas": "^3.0.34",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-use-websocket": "^4.2.0",
+    "rive-react": "^3.0.34",
+    "use-sound": "^4.0.1"
   }
 }

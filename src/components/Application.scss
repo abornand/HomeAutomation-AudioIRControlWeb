@@ -17,13 +17,14 @@
  * Here we use the codes to apply application specific style
  */
 
+ /*
 ::selection {
   background: var(--selection-bgcolor);
   color: var(--selection-color);
 }
 
 ::-webkit-scrollbar {
-  width: var(--scroll-width);
+  width: 1920px; //var(--scroll-width);
 
   &-track {
     background: var(--scroll-track-bgcolor);
@@ -37,38 +38,73 @@
     background: var(--scroll-thumb-hover-bgcolor);
   }
 }
+*/
 
 html,
-body,
-#app {
-  height: 100%;
+body {
+  background-color: #000;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  // border: 1px solid black;
+  // width: 1920px;
+  // height: 1080px;
+  //height: 100%;
 }
 
-body {
-  margin: 0;
-  font-size: var(--app-font-size);
-  font-family: var(--app-font-family);
-  color: var(--app-color);
-  background: var(--app-bgcolor);
-  line-height: 1.5;
+#main #animation {
+  position:absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  border: 0;
 }
+
+#graphics {
+  position: absolute;
+  z-index: 100;
+}
+
+canvas {
+  // width: 1920px;
+  // height: 1080px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  scrollbar-width: none;
+}
+#app {
+  height: 1080px;
+  width: 1920px;
+}
+
+// body {
+//   margin: 0;
+//   background-color: #000;
+//   font-size: var(--app-font-size);
+//   font-family: var(--app-font-family);
+//   color: var(--app-color);
+//   background: var(--app-bgcolor);
+//   line-height: 1.5;
+// }
 
 h1 {
   margin: 0;
 }
 
-#app {
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  user-select: none;
-  align-items: center;
-  justify-content: center;
+// #app {
+//   display: flex;
+//   flex-direction: column;
+//   box-sizing: border-box;
+//   user-select: none;
+//   align-items: center;
+//   justify-content: center;
 
-  &.has-border {
-    border: var(--app-border-color);
-  }
-}
+//   &.has-border {
+//     border: var(--app-border-color);
+//   }
+// }
 
 button {
   background: var(--button-bgcolor);
@@ -223,14 +259,15 @@ button {
 
 #erwt {
   // user-select: none;
-  display: flex;
-  flex-direction: column;
-  max-height: 800px;
-  justify-content: space-between;
-  background: var(--erwt-bgcolor);
+  // display: flex;
+  // flex-direction: column;
+  // max-height: 800px;
+  // justify-content: space-between;
+  // background: var(--erwt-bgcolor);
   margin: 0 auto;
-  border-radius: 10px;
-  box-shadow: 0 0 20px 4px #00000000;
+  background-color: #000;
+  // border-radius: 10px;
+  // box-shadow: 0 0 20px 4px #00000000;
 
   .header {
     padding: 3rem 2rem 0rem 2rem;
@@ -242,4 +279,15 @@ button {
     padding: 2rem;
     background: var(--app-footer-bgColor);
   }
+}
+
+.time {
+  // border: solid 1px white;
+  width: 45px;
+  text-align: center;
+  position: absolute;
+  left: 117px;
+  top: 242px;
+  font-size: 30px;
+  color: #fff;
 }
