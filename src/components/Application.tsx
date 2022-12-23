@@ -1,20 +1,28 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useRive, useStateMachineInput } from 'rive-react';
 import useSound from 'use-sound';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
+// import useWebSocket, { ReadyState } from 'react-use-websocket';
+import moment, { Duration } from 'moment';
+import mqtt, { IClientOptions, MqttClient } from 'precompiled-mqtt';
+import { useCountdownTimer } from '../hooks/useCountdownTimer';
+// import { useTimer } from 'use-timer';
 // import Rive from '@rive-app/react-canvas';
 import './Application.scss';
 import { icons } from './Icons';
 import { sounds } from './Sounds';
 import { animations } from './Animations';
+import { DISPLAY_STATES } from './DisplayState';
+import { ACTIONS } from './Actions';
 
 const Application: React.FC = () => {
+  const [displayState, setDisplayState] = useState(DISPLAY_STATES.INITIALIZING);
   // const [counter, setCounter] = useState(0);
   // const [darkTheme, setDarkTheme] = useState(true);
   const STATE_MACHINE_NAME = 'State Machine 1';
   const INPUT_NAME = 'Reveal';
   const SOCKET_URL =
     'wss://g72mfojt9c.execute-api.us-west-1.amazonaws.com/shared';
+  const TIMER_DURATION = moment.duration(1, 'minutes');
 
   const display = animations.display;
 
@@ -30,37 +38,146 @@ const Application: React.FC = () => {
     STATE_MACHINE_NAME,
     INPUT_NAME,
   );
-  // const [playAlarm] = useSound(sounds.alarm, { volume: 1.0 });
+
+  const [playAlarm] = useSound(sounds.alarm, { volume: 1.0 });
+  const [playBeep, controlBeep] = useSound(sounds.beep1s, {
+    volume: 0.5,
+    loop: true,
+  });
+
+  const [timer] = useState(moment.duration(TIMER_DURATION));
+  const { countdown, start, reset, pause, isRunning } = useCountdownTimer({
+    timer,
+    onExpire: () => {
+      setActions((actions) => [...actions, 'Expire Callback']);
+      console.log('expire');
+      controlBeep.stop();
+    },
+    onReset: () => {
+      console.log('reset');
+      setActions((actions) => [...actions, 'Reset Callback']);
+    },
+    interval: 50,
+    // onBeep: () => {
+    //   playBeep();
+    // },
+  });
+
+  const [actions, setActions] = useState<string[]>([]);
+
+  const logAction = (message: string, action: () => void) => {
+    setActions((actions) => [...actions, message]);
+    action();
+  };
+
+  // const { time, start, pause, reset, status } = useTimer({
+  //   initialTime: 300, //TIMER_DURATION.asMilliseconds() / 100,
+  //   timerType: 'DECREMENTAL',
+  //   interval: 1000,
+  //   onTimeUpdate: (time) => {
+  //     if (time <= 0) {
+  //       console.log('stop');
+  //       stop();
+  //     }
+  //     // const countdown = moment(time);
+  //     // console.log(
+  //     //   `${countdown.minutes()} ${countdown.seconds()} ${countdown.milliseconds()}`,
+  //     // );
+  //     console.log(time);
+  //   },
+  // });
 
   //Public API that will echo messages sent to it back to the client
   const [socketUrl, setSocketUrl] = useState(SOCKET_URL);
   const [messageHistory, setMessageHistory] = useState([]);
   const didUnmount = useRef(false);
 
-  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, {
-    shouldReconnect: (closeEvent) => {
-      /*
-        useWebSocket will handle unmounting for you, but this is an example of a 
-        case in which you would not want it to automatically reconnect
-      */
-      return didUnmount.current === false;
-    },
-    reconnectAttempts: 10,
-    reconnectInterval: 3000,
+  const [mqttClient, setMqttClient] = useState<MqttClient>();
 
-    onOpen: (event: WebSocketEventMap['open']) => {
-      console.log(event);
-    },
-    onMessage: (event: WebSocketEventMap['message']) => {
-      console.log(event);
-      const data = JSON.parse(event.data);
-      console.log(event.data);
-      console.log(data.action);
+  useEffect(() => {
+    var options: IClientOptions = {
+      protocol: 'mqtts',
+      // hostname: 'io.adafruit.com',
+      // port: 8883,
+      keepalive: 30,
+      // protocolVersion: 4,
+      // clean: true,
+      reconnectPeriod: 1000,
+      connectTimeout: 30 * 1000,
+      // rejectUnauthorized: false,
+      username: 'andrewbornand',
+      password: 'aio_lkYw416dlB2zQ1YTkbXYRQGZ6gdv',
+    };
+    // var client = mqtt.connect('mqtts://io.adafruit.com:8883', options);
+    const client = mqtt.connect('mqtts://io.adafruit.com:443/mqtt', options);
+    client.subscribe('andrewbornand/f/xmas-2022.xmas-bot');
+    client.on('connect', () => {
+      console.log('CONNECTED to broker');
+    });
+    client.on('message', (topic, message) => {
+      /* set state and handle the change in a different useEffect then reset the action to null */
+      const decoder = new TextDecoder('utf-8');
+      const msg = JSON.parse(decoder.decode(message));
+      console.log(msg.action);
 
-      // playAlarm();
-      revealInput && revealInput.fire();
-    },
-  });
+      if (msg.action) {
+        switch (msg.action) {
+          case ACTIONS.START:
+            setDisplayState(DISPLAY_STATES.WAITING);
+            console.log('Waiting...');
+          case ACTIONS.COUNTDOWN:
+            setDisplayState(DISPLAY_STATES.COUNTDOWN);
+            break;
+          case ACTIONS.IDLE:
+            break;
+          default:
+        }
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    switch (displayState) {
+      case DISPLAY_STATES.COUNTDOWN:
+        console.log('Countdown...');
+        console.log(revealInput);
+        revealInput && revealInput.fire();
+        start();
+        playBeep();
+        break;
+      default:
+    }
+  }, [displayState]);
+
+  const startCountdown = () => {};
+
+  // const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, {
+  //   shouldReconnect: (closeEvent) => {
+  //     /*
+  //       useWebSocket will handle unmounting for you, but this is an example of a
+  //       case in which you would not want it to automatically reconnect
+  //     */
+  //     return didUnmount.current === false;
+  //   },
+  //   reconnectAttempts: 10,
+  //   reconnectInterval: 3000,
+
+  //   onOpen: (event: WebSocketEventMap['open']) => {
+  //     console.log(event);
+  //   },
+  //   onMessage: (event: WebSocketEventMap['message']) => {
+  //     console.log(event);
+  //     const data = JSON.parse(event.data);
+  //     console.log(event.data);
+  //     console.log(data.action);
+
+  //     setDisplayState(DISPLAY_STATES.COUNTDOWN);
+  //     revealInput && revealInput.fire();
+  //     start();
+  //     playBeep();
+  //     //playAlarm();
+  //   },
+  // });
 
   useEffect(() => {
     return () => {
@@ -81,63 +198,63 @@ const Application: React.FC = () => {
 
   //const handleClickSendMessage = useCallback(() => sendMessage('Hello'), []);
 
-  const connectionStatus = {
-    [ReadyState.CONNECTING]: 'Connecting',
-    [ReadyState.OPEN]: 'Open',
-    [ReadyState.CLOSING]: 'Closing',
-    [ReadyState.CLOSED]: 'Closed',
-    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-  }[readyState];
+  // const connectionStatus = {
+  //   [ReadyState.CONNECTING]: 'Connecting',
+  //   [ReadyState.OPEN]: 'Open',
+  //   [ReadyState.CLOSING]: 'Closing',
+  //   [ReadyState.CLOSED]: 'Closed',
+  //   [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+  // }[readyState];
 
-  // levelInput is a number state machine input. To transition the state machine,
-  // we need to set the value to a number. For this state machine input, we need
-  // to set to 0, 1 or 2 for a state transition to occur.
-  const levelInput = useStateMachineInput(rive, STATE_MACHINE_NAME, INPUT_NAME);
+  const host: string = 'io.adafruit.com';
+  const clientId: string = `webdisplay_ + ${Math.random()
+    .toString(16)
+    .substr(2, 8)}`;
+  const port: number = 8883;
 
-  /**
-   * On component mount
-   */
-  useEffect(() => {
-    // const useDarkTheme = parseInt(localStorage.getItem('dark-mode'));
-    // if (isNaN(useDarkTheme)) {
-    //   setDarkTheme(true);
-    // } else if (useDarkTheme == 1) {
-    //   setDarkTheme(true);
-    // } else if (useDarkTheme == 0) {
-    //   setDarkTheme(false);
-    // }
-  }, []);
+  // const url = `mqtt://${host}:${port}`;
+  // const options = {
+  //   keepalive: 30,
+  //   protocolId: 'mqtt',
+  //   protocolVersion: 4,
+  //   clean: true,
+  //   reconnectPeriod: 1000,
+  //   connectTimeout: 30 * 1000,
+  //   rejectUnauthorized: false,
+  //   clientId,
+  //   username: 'andrewbornand',
+  //   password: 'aio_lkYw416dlB2zQ1YTkbXYRQGZ6gdv',
+  // };
 
-  /**
-   * On Dark theme change
-   */
-  // useEffect(() => {
-  //   if (darkTheme) {
-  //     localStorage.setItem('dark-mode', '1');
-  //     document.body.classList.add('dark-mode');
-  //   } else {
-  //     localStorage.setItem('dark-mode', '0');
-  //     document.body.classList.remove('dark-mode');
-  //   }
-  // }, [darkTheme]);
-
-  /**
-   * Toggle Theme
-   */
-  // function toggleTheme() {
-  //   setDarkTheme(!darkTheme);
-  // }
+  const CountdownDisplay = () => {
+    const min = Math.max(countdown.minutes(), 0).toString().padStart(2, '0');
+    const sec = Math.max(countdown.seconds(), 0).toString().padStart(2, '0');
+    const milli = Math.max(countdown.milliseconds(), 0)
+      .toString()
+      .padStart(3, '0');
+    return (
+      <div id='graphics'>
+        <div className='time' id='minutes'>
+          {min}
+        </div>
+        <div className='time' id='seconds'>
+          {sec}
+        </div>
+        <div className='time' id='milliseconds'>
+          {milli}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div id='main'>
       <div id='animation'>
         <RiveComponent />
       </div>
-      <div id='graphics'>
-        <div className='time' id='minutes'>
-          5
-        </div>
-      </div>
+      {(displayState === DISPLAY_STATES.COUNTDOWN ||
+        displayState === DISPLAY_STATES.FAIRGAME ||
+        displayState === DISPLAY_STATES.OPENED) && <CountdownDisplay />}
     </div>
   );
 };

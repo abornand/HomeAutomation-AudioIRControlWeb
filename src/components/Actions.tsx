@@ -1,0 +1,7 @@
+export const ACTIONS = {
+  IDLE: 'HIDE',
+  START: 'START',
+  COUNTDOWN: 'COUNTDOWN',
+  OPEN: 'OPEN',
+  CELEBRATE: 'CELEBRATE',
+};

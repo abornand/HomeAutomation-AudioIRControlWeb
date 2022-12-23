@@ -43,10 +43,14 @@
   },
   "dependencies": {
     "@rive-app/react-canvas": "^3.0.34",
+    "moment": "^2.29.4",
+    "mqtt": "^4.3.7",
+    "precompiled-mqtt": "^4.3.14-beta",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-use-websocket": "^4.2.0",
     "rive-react": "^3.0.34",
-    "use-sound": "^4.0.1"
+    "use-sound": "^4.0.1",
+    "use-timer": "^2.0.1"
   }
 }

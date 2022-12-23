@@ -40,6 +40,14 @@
 }
 */
 
+@font-face {
+  font-family: 'LeagueGothic';
+  src: local('LeagueGothic'), url('../../assets/fonts/LeagueGothic-Regular.otf') format('opentype');
+  /* other formats include: 'woff2', 'truetype, 'opentype',
+                            'embedded-opentype', and 'svg' */
+}
+
+
 html,
 body {
   background-color: #000;
@@ -283,11 +291,25 @@ button {
 
 .time {
   // border: solid 1px white;
+  font-family: 'LeagueGothic';
   width: 45px;
   text-align: center;
   position: absolute;
+  font-size: 34px;
+  color: #fff;
+}
+
+#minutes {
   left: 117px;
   top: 242px;
-  font-size: 30px;
-  color: #fff;
+}
+
+#seconds {
+  left: 240px;
+  top: 242px;
+}
+
+#milliseconds {
+  left: 362px;
+  top: 242px;
 }
