@@ -20,8 +20,6 @@ const Application: React.FC = () => {
   // const [darkTheme, setDarkTheme] = useState(true);
   const STATE_MACHINE_NAME = 'State Machine 1';
   const INPUT_NAME = 'Reveal';
-  const SOCKET_URL =
-    'wss://g72mfojt9c.execute-api.us-west-1.amazonaws.com/shared';
   const TIMER_DURATION = moment.duration(1, 'minutes');
 
   const display = animations.display;
@@ -88,8 +86,8 @@ const Application: React.FC = () => {
   // });
 
   //Public API that will echo messages sent to it back to the client
-  const [socketUrl, setSocketUrl] = useState(SOCKET_URL);
-  const [messageHistory, setMessageHistory] = useState([]);
+  // const [socketUrl, setSocketUrl] = useState(SOCKET_URL);
+  // const [messageHistory, setMessageHistory] = useState([]);
   const didUnmount = useRef(false);
 
   const [mqttClient, setMqttClient] = useState<MqttClient>();
@@ -106,9 +104,10 @@ const Application: React.FC = () => {
       connectTimeout: 30 * 1000,
       // rejectUnauthorized: false,
       username: 'andrewbornand',
-      password: 'aio_lkYw416dlB2zQ1YTkbXYRQGZ6gdv',
+      password: '',
     };
     // var client = mqtt.connect('mqtts://io.adafruit.com:8883', options);
+    console.log('subscribe');
     const client = mqtt.connect('mqtts://io.adafruit.com:443/mqtt', options);
     client.subscribe('andrewbornand/f/xmas-2022.xmas-bot');
     client.on('connect', () => {
