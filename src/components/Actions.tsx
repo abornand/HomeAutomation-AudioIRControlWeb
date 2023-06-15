@@ -4,4 +4,9 @@ export const ACTIONS = {
   COUNTDOWN: 'COUNTDOWN',
   OPEN: 'OPEN',
   CELEBRATE: 'CELEBRATE',
+  RESET: 'RESET',
+  SHAKE: 'SHAKE',
+  MOVE: 'MOVE',
+  UNLOCK: 'UNLOCK',
+  CHECK: 'CHECK',
 };
