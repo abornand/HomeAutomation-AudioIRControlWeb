@@ -42,13 +42,19 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@rebass/preset": "^4.0.5",
     "@rive-app/react-canvas": "^3.0.34",
+    "@types/rebass": "^4.0.10",
+    "emotion-theming": "^11.0.0",
     "moment": "^2.29.4",
     "mqtt": "^4.3.7",
     "precompiled-mqtt": "^4.3.14-beta",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-responsive": "^9.0.2",
     "react-use-websocket": "^4.2.0",
+    "rebass": "^4.0.7",
     "rive-react": "^3.0.34",
     "use-sound": "^4.0.1",
     "use-timer": "^2.0.1"

@@ -7,6 +7,11 @@ import { sounds } from './Sounds';
 import { animations } from './Animations';
 import { DISPLAY_STATES } from './DisplayState';
 import { ACTIONS } from './Actions';
+import { Flex, Box,   Heading, Text, Button } from 'rebass'
+import styled from '@emotion/styled'
+import '@emotion/react'
+import { useMediaQuery } from 'react-responsive'
+
 
 const Application: React.FC = () => {
   const [mode, setMode] = useState('');
@@ -16,6 +21,16 @@ const Application: React.FC = () => {
   const didUnmount = useRef(false);
 
   const [mqttClient, setMqttClient] = useState<MqttClient>();
+
+  const isDesktopOrLaptop = useMediaQuery({
+    query: '(min-width: 1224px)'
+    })
+    const isMobile = useMediaQuery({ query: '(max-width: 980px)' })
+    const isBigScreen = useMediaQuery({ query: '(min-width: 1824px)' })
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' })
+    const isPortrait = useMediaQuery({ query: '(orientation: portrait)' })
+    const isRetina = useMediaQuery({ query: '(min-resolution: 2dppx)' })
+  
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -128,48 +143,66 @@ const Application: React.FC = () => {
 
   if (mode === 'REMOTE') {
     return (
-      <div id='remote'>
-        <div id='buttons'>
-          <button onClick={outdoor_power}>Outdoor Power</button>
-          <br />
-          <button onClick={indoor_power}>Indoor Power</button>
-          <br />
-          <button onClick={outdoor_mute}>Outdoor Mute</button>
-          <br />
-          <button onClick={indoor_mute}>Indoor Mute</button>
-          <br />
-          <button onClick={indoor_volume_down}>Indoor Volume Down</button>
-          <br />
-          <button onClick={indoor_volume_up}>Indoor Volume Up</button>
-          <br />
-          <button onClick={outdoor_volume_down}>Outdoor Volume Down</button>
-          <br />
-          <button onClick={outdoor_volume_up}>Outdoor Volume Up</button>
-          <br />
-
-          {/* 
-          <button onClick={arm}>Arm System</button>
-          <br />
-          <button onClick={disarm}>Disarm System</button>
-          <br />
-          <button onClick={ctdown}>Countdown</button>
-          <br />
-          <button onClick={unlock}>Unlock</button>
-          <br />
-          <button onClick={resetSensor}>Reset</button>
-          <br />
-          <button onClick={check}>Check</button>
-          <br />
- */}
-        </div>
-        <div id='message'>
-          <textarea value={lastMessage}></textarea>
-        </div>
-      </div>
-    );
+      <Flex>
+        <p>
+      <Flex
+  alignItems='center'
+  px={3}
+  py={4}
+  bg='muted'>
+    <Heading>Outdoor</Heading>
+  <Box mx='auto' />
+  <Button className="larger" onClick={outdoor_mute}>ON/OFF</Button>
+  </Flex></p><p><Flex
+  alignItems='center'
+  px={3}
+  py={4}
+  bg='muted'>
+  <Heading><span className='larger'>Indoor</span></Heading><Box mx='auto' /><Button onClick={indoor_mute}>ON/OFF</Button>
+</Flex></p>
+</Flex>
+    )     
   }
 
-  return <div />;
+  return (<div/>);
 };
+
+
+      // <div id='remote'>
+      //   <div id='buttons'>
+      //     <button onClick={outdoor_power}>Outdoor Power</button>
+      //     <br />
+      //     <button onClick={indoor_power}>Indoor Power</button>
+      //     <br />
+      //     <button onClick={outdoor_mute}>Outdoor Mute</button>
+      //     <br />
+      //     <button onClick={indoor_mute}>Indoor Mute</button>
+      //     <br />
+      //     <button onClick={indoor_volume_down}>Indoor Volume Down</button>
+      //     <br />
+      //     <button onClick={indoor_volume_up}>Indoor Volume Up</button>
+      //     <br />
+      //     <button onClick={outdoor_volume_down}>Outdoor Volume Down</button>
+      //     <br />
+      //     <button onClick={outdoor_volume_up}>Outdoor Volume Up</button>
+      //     <br />
+
+      //     <button onClick={arm}>Arm System</button>
+      //     <br />
+      //     <button onClick={disarm}>Disarm System</button>
+      //     <br />
+      //     <button onClick={ctdown}>Countdown</button>
+      //     <br />
+      //     <button onClick={unlock}>Unlock</button>
+      //     <br />
+      //     <button onClick={resetSensor}>Reset</button>
+      //     <br />
+      //     <button onClick={check}>Check</button>
+      //     <br />
+      //   </div>
+      //   <div id='message'>
+      //     <textarea value={lastMessage}></textarea>
+      //   </div>
+      // </div>
 
 export default Application;
